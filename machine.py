@@ -28,12 +28,15 @@ class Machine(ABC):
 
     def status(self):
         if self.isAvailable:
-            return f'AVAILABLE \U00002705, last used by @{self.currUser}'
+            reply = f"AVAILABLE \U00002705"
+            if self.currUser:
+                reply += f', last used by @{self.currUser} ({self.endTime.strftime("%d/%m/%Y %I:%M%p")})'
+            return reply
         else:
             timeDelta = self.endTime - datetime.datetime.now()
             timeInMin = timeDelta.seconds // 60
             timeInSec = timeDelta.seconds % 60
-            return f'UNAVAILABLE \U0000274C for {timeInMin}mins and {timeInSec}s by @{self.currUser}'
+            return f"UNAVAILABLE \U0000274C for {timeInMin}mins and {timeInSec}s by @{self.currUser}"
 
     def time_left_mins(self):
         return self.timeToComplete // 60
