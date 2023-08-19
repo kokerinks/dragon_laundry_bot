@@ -1,12 +1,15 @@
 from abc import ABC
 import datetime
 from math import floor
+import pytz
+
+sgt_timezone = pytz.timezone("Asia/Singapore")
 
 
 class Machine(ABC):
     isAvailable = True
 
-    completionText = 'Fuyohhhhhh!! Your clothes are ready for collection! Please collect them now so that others may use it'
+    completionText = "Fuyohhhhhh!! Your clothes are ready for collection! Please collect them now so that others may use it"
 
     ##constant value which stores total time required for start (IN SECONDS)
     timeToComplete = None
@@ -30,7 +33,7 @@ class Machine(ABC):
         if self.isAvailable:
             reply = f"AVAILABLE \U00002705"
             if self.currUser:
-                reply += f', last used by @{self.currUser} ({self.endTime.strftime("%d/%m/%Y %I:%M%p")})'
+                reply += f', last used by @{self.currUser} ({self.endTime.astimezone(sgt_timezone).strftime("%d/%m/%Y %I:%M%p")})'
             return reply
         else:
             timeDelta = self.endTime - datetime.datetime.now()
@@ -45,14 +48,16 @@ class Machine(ABC):
         return self.timeToComplete % 60
 
     def total_time(self):
-        return f'{self.time_left_mins()}mins'
+        return f"{self.time_left_mins()}mins"
 
     def start_machine(self, newUser):
-        if not(self.isAvailable):
+        if not (self.isAvailable):
             return False
         else:
             self.isAvailable = False
-            self.endTime = datetime.datetime.now() + datetime.timedelta(seconds = self.timeToComplete)
+            self.endTime = datetime.datetime.now() + datetime.timedelta(
+                seconds=self.timeToComplete
+            )
             self.currUser = newUser
             return True
 
