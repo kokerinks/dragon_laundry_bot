@@ -8,12 +8,16 @@ from telegram import Bot, Update, InlineKeyboardButton, InlineKeyboardMarkup, Re
 import logging
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 from machine import Machine
+from dotenv import load_dotenv
+
+load_dotenv()
 
 print("Running on version ", os.getenv("VERSION"))
 
+API_KEY = os.getenv("TELEGRAM_BOT_API_KEY")
 MENU = 1
 
-Tbot = telegram.Bot("6664557635:AAHekMqFEWI1lC8C5RSGTUoIYb7OANIEwLY")
+Tbot = telegram.Bot(API_KEY)
 
 washertimer = 32*60
 dryertimer = 32*60
@@ -24,8 +28,9 @@ DRYER_TWO = Machine(dryertimer, "Dryer TWO")
 
 all_machines = [DRYER_ONE, DRYER_TWO, WASHER_ONE, WASHER_TWO]
 
+
 def main():
-    updater = Updater("6664557635:AAHekMqFEWI1lC8C5RSGTUoIYb7OANIEwLY")
+    updater = Updater(API_KEY)
     # Test Laundry Bot
     # updater = Updater("5480884899:AAH5QJV9TL4Ls9DxJzFZwCEvJcfqWxiAwpc")
 
