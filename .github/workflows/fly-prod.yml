@@ -1,8 +1,8 @@
-name: Fly Beta Deploy
+name: Fly Production Deploy
 on:
-  push:
-    branches:
-      - feat/cicd
+  release:
+    types:
+      - released
 jobs:
   deploy:
     name: Deploy app
@@ -12,4 +12,4 @@ jobs:
       - uses: superfly/flyctl-actions/setup-flyctl@master
       - run: flyctl deploy --remote-only --config config/fly-beta.toml
         env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_BETA }}
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_PROD }}
