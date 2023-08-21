@@ -1,6 +1,7 @@
 import datetime
 import random
 import re
+import os
 from pytz import timezone
 import telegram
 from telegram import Bot, Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
@@ -8,6 +9,7 @@ import logging
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 from machine import Machine
 
+print("Running on version ", os.getenv("VERSION"))
 
 MENU = 1
 
