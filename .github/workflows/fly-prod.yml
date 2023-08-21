@@ -2,7 +2,7 @@ name: Fly Production Deploy
 on:
   release:
     types:
-      - released
+      - published
 jobs:
   deploy:
     name: Deploy app
@@ -10,6 +10,9 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
+      - run: flyctl secrets set VERSION=${{ github.event.release.tag_name }} --config config/fly-beta.toml
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_PROD }}
       - run: flyctl deploy --remote-only --config config/fly-beta.toml
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN_PROD }}
