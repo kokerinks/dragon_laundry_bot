@@ -2,7 +2,7 @@ name: Fly Beta Deploy
 on:
   push:
     branches:
-      - feat/cicd
+      - main
 jobs:
   deploy:
     name: Deploy app
