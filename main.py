@@ -9,8 +9,11 @@ import logging
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 from machine import Machine
 from dotenv import load_dotenv
+from utils import is_prod
+import laundry_firebase
 
 load_dotenv()
+laundry_firebase.authenticate()
 
 API_KEY = os.getenv("TELEGRAM_BOT_API_KEY")
 MENU = 1
