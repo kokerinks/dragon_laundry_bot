@@ -1,0 +1,15 @@
+name: Docker Build
+
+on:
+  pull_request:
+    # branches:
+    #   - main
+
+jobs:
+  build:
+    name: Build Docker Container
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Build Docker image
+        run: docker build -t  .
