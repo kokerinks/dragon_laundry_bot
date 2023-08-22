@@ -10,10 +10,10 @@ from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQuery
 from machine import Machine
 from dotenv import load_dotenv
 from utils import is_prod
-import laundry_firebase
+from laundry_firebase import LaundryFirebase 
 
 load_dotenv()
-laundry_firebase.authenticate()
+LaundryFirebase.authenticate()
 
 API_KEY = os.getenv("TELEGRAM_BOT_API_KEY")
 MENU = 1
