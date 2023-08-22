@@ -1,12 +1,13 @@
-name: Docker build
+name: Test Pull Requests
 
 on:
   pull_request:
-    # branches:
-    #   - main
+    branches:
+      - main
 
 jobs:
   build:
+    name: Docker build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
