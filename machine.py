@@ -1,6 +1,5 @@
 from abc import ABC
 import datetime
-from math import floor
 import pytz
 import laundry_firebase
 import utils
@@ -9,20 +8,21 @@ sgt_timezone = pytz.timezone("Asia/Singapore")
 
 
 class Machine(ABC):
-    completionText = "Fuyohhhhhh!! Your clothes are ready for collection! Please collect them now so that others may use it"
+    COMPLETION_TEXT = "Fuyohhhhhh!! Your clothes are ready for collection! Please collect them now so that others may use it"
 
-    ##constant value which stores total time required for start (IN SECONDS)
-    timeToComplete = None
+    # constant value which stores total time required for start (IN SECONDS)
+    name = None
+    time_to_complete = None
 
-    def __init__(self, newTimeToComplete, newName):
-        self.timeToComplete = newTimeToComplete
-        self.name = newName
+    def __init__(self, new_time_to_complete, new_name):
+        self.time_to_complete = new_time_to_complete
+        self.name = new_name
 
-    def getName(self):
+    def get_name(self):
         return self.name
 
-    def getTimeToComplete(self):
-        return self.timeToComplete
+    def get_time_to_complete(self):
+        return self.time_to_complete
 
     def status(self):
         curr_user, end_time = laundry_firebase.get_laundry_timer(self.name)
@@ -38,10 +38,10 @@ class Machine(ABC):
             return f"UNAVAILABLE \U0000274C for {time_in_min}mins and {time_in_sec}s by @{curr_user}"
 
     def time_left_mins(self):
-        return self.timeToComplete // 60
+        return self.time_to_complete // 60
 
     def time_left_secs(self):
-        return self.timeToComplete % 60
+        return self.time_to_complete % 60
 
     def total_time(self):
         return f"{self.time_left_mins()}mins"
@@ -59,4 +59,4 @@ class Machine(ABC):
             return True
 
     def alarm(self):
-        return self.completionText
+        return self.COMPLETION_TEXT
