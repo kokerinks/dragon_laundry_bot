@@ -1,4 +1,4 @@
-name: Docker Build
+name: Docker build
 
 on:
   pull_request:
@@ -7,9 +7,8 @@ on:
 
 jobs:
   build:
-    name: Build Docker Container
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
       - name: Build Docker image
-        run: docker build -t  .
+        run: docker build  .
