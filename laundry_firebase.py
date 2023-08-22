@@ -29,7 +29,7 @@ def set_laundry_timer(name: str, curr_user: str, end_time: datetime.datetime):
     )
 
 
-def get_laundry_timer(name: str) -> tuple[str, datetime.datetime | None]:
+def get_laundry_timer(name: str) -> tuple[str, datetime.datetime]:
     env_data = db.reference(prod_ref if is_prod else beta_ref)
     timer_data = env_data.child(name).get()
     if timer_data and timer_data["currUser"] and timer_data["endTime"]:
