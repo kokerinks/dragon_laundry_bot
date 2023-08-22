@@ -2,22 +2,17 @@ from abc import ABC
 import datetime
 from math import floor
 import pytz
+import laundry_firebase
+import utils
 
 sgt_timezone = pytz.timezone("Asia/Singapore")
 
 
 class Machine(ABC):
-    isAvailable = True
-
     completionText = "Fuyohhhhhh!! Your clothes are ready for collection! Please collect them now so that others may use it"
 
     ##constant value which stores total time required for start (IN SECONDS)
     timeToComplete = None
-
-    ##datetime storing start time of machine
-    endTime = None
-
-    currUser = ""
 
     def __init__(self, newTimeToComplete, newName):
         self.timeToComplete = newTimeToComplete
@@ -30,16 +25,17 @@ class Machine(ABC):
         return self.timeToComplete
 
     def status(self):
-        if self.isAvailable:
+        curr_user, end_time = laundry_firebase.get_laundry_timer(self.name)
+        if utils.is_available(end_time):
             reply = f"AVAILABLE \U00002705"
-            if self.currUser:
-                reply += f', last used by @{self.currUser} ({self.endTime.astimezone(sgt_timezone).strftime("%d/%m/%Y %I:%M%p")})'
+            if curr_user:
+                reply += f', last used by @{curr_user} ({end_time.astimezone(sgt_timezone).strftime("%d/%m/%Y %I:%M%p")})'
             return reply
         else:
-            timeDelta = self.endTime - datetime.datetime.now()
-            timeInMin = timeDelta.seconds // 60
-            timeInSec = timeDelta.seconds % 60
-            return f"UNAVAILABLE \U0000274C for {timeInMin}mins and {timeInSec}s by @{self.currUser}"
+            time_delta = end_time - datetime.datetime.now()
+            time_in_min = time_delta.seconds // 60
+            time_in_sec = time_delta.seconds % 60
+            return f"UNAVAILABLE \U0000274C for {time_in_min}mins and {time_in_sec}s by @{curr_user}"
 
     def time_left_mins(self):
         return self.timeToComplete // 60
@@ -50,17 +46,17 @@ class Machine(ABC):
     def total_time(self):
         return f"{self.time_left_mins()}mins"
 
-    def start_machine(self, newUser):
-        if not (self.isAvailable):
+    def start_machine(self, new_user):
+        _, end_time = laundry_firebase.get_laundry_timer(self.name)
+        if not utils.is_available(end_time):
             return False
         else:
-            self.isAvailable = False
-            self.endTime = datetime.datetime.now() + datetime.timedelta(
+            new_end_time = datetime.datetime.now() + datetime.timedelta(
                 seconds=self.timeToComplete
             )
-            self.currUser = newUser
+            new_curr_user = new_user
+            laundry_firebase.set_laundry_timer(self.name, new_curr_user, new_end_time)
             return True
 
     def alarm(self):
-        self.isAvailable = True
         return self.completionText

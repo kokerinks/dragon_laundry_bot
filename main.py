@@ -9,8 +9,11 @@ import logging
 from telegram.ext import Updater, CommandHandler, CallbackContext, CallbackQueryHandler, ConversationHandler, Filters, MessageHandler
 from machine import Machine
 from dotenv import load_dotenv
+from utils import is_prod
+import laundry_firebase
 
 load_dotenv()
+laundry_firebase.authenticate()
 
 API_KEY = os.getenv("TELEGRAM_BOT_API_KEY")
 MENU = 1
@@ -91,7 +94,12 @@ def main():
     dispatcher.add_handler(conv_handler)
 
     # Start the Bot
-    updater.start_polling()
+    if is_prod:
+      updater.start_webhook(listen='0.0.0.0', 
+                            port=os.environ.get('PORT', 8080),
+                            webhook_url='https://dragon-laundry-bot-beta.fly.dev')
+    else:
+      updater.start_polling()
 
     # Block until you press Ctrl-C or the process receives SIGINT, SIGTERM or
     # SIGABRT. This should be used most of the time, since start_polling() is
