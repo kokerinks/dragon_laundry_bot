@@ -114,7 +114,7 @@ def start(update: Update, context: CallbackContext) -> None:
 
   reply_markup = InlineKeyboardMarkup(keyboard)
   update.message.reply_text(
-    'Welcome to Dragon Laundry Bot!\U0001f600\U0001F606\U0001F923\n\nUse the following commands to use this bot:\n/select: Select the washer/dryer that you want to use\n/status: Check the status of Washers and Dryers\n\nThank you for using the bot!\nCredit to: @Kaijudo',
+    f'Welcome to Dragon Laundry Bot ({os.environ.get("VERSION","dev")})!\U0001f600\U0001F606\U0001F923\n\nUse the following commands to use this bot:\n/select: Select the washer/dryer that you want to use\n/status: Check the status of Washers and Dryers\n\nThank you for using the bot!\nCredit to: @Kaijudo',
     reply_markup=reply_markup)
   return MENU
 
