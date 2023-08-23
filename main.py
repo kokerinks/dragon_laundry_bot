@@ -14,7 +14,7 @@ from telegram.ext import (
 )
 from machine import Machine
 from dotenv import load_dotenv
-from utils import is_prod
+from utils import is_deployed
 from laundry_firebase import LaundryFirebase
 
 load_dotenv()
@@ -87,7 +87,7 @@ def main():
     dispatcher.add_handler(conv_handler)
 
     # Start the Bot
-    if is_prod:
+    if is_deployed:
         updater.start_webhook(
             listen="0.0.0.0",
             port=os.environ.get("PORT", 8080),
