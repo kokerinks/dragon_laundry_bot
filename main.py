@@ -211,7 +211,7 @@ def backtomenu(update: Update, context: CallbackContext) -> None:
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
-        "Welcome to Dragon Laundry Bot!\n\nUse the following commands to use this bot:\n/select: Select the washer/dryer that you want to use\n/status: Check the status of Washers and Dryers\n\nThank you for using the bot!\nCredit to: @Kaijudo",
+        f"Welcome to Dragon Laundry Bot ({os.environ.get('VERSION','dev')})!\n\nUse the following commands to use this bot:\n/select: Select the washer/dryer that you want to use\n/status: Check the status of Washers and Dryers\n\nThank you for using the bot!\nCredit to: @Kaijudo",
         reply_markup=reply_markup,
     )
 
