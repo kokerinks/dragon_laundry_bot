@@ -102,6 +102,11 @@ def main():
     updater.idle()
 
 
+WELCOME_MESSAGE = (
+    f"Welcome to Dragon Laundry Bot ({os.environ.get('VERSION','dev')})!\n\nUse the following commands to use this bot:\n/select: Select the washer/dryer that you want to use\n/status: Check the status of Washers and Dryers\n\nThank you for using the bot!\nCredit to: @Kaijudo",
+)
+
+
 def start(update: Update, context: CallbackContext) -> None:
     # Don't allow users to use /start command in group chats
     if update.message.chat.type != "private":
@@ -117,7 +122,7 @@ def start(update: Update, context: CallbackContext) -> None:
     keyboard = [[InlineKeyboardButton("Exit", callback_data="exit")]]
     reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(
-        "Welcome to Dragon Laundry Bot!\U0001f600\U0001F606\U0001F923\n\nUse the following commands to use this bot:\n/select: Select the washer/dryer that you want to use\n/status: Check the status of Washers and Dryers\n\nThank you for using the bot!\nCredit to: @Kaijudo",
+        WELCOME_MESSAGE,
         reply_markup=reply_markup,
     )
     return MENU
@@ -211,7 +216,7 @@ def backtomenu(update: Update, context: CallbackContext) -> None:
 
     reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
-        f"Welcome to Dragon Laundry Bot ({os.environ.get('VERSION','dev')})!\n\nUse the following commands to use this bot:\n/select: Select the washer/dryer that you want to use\n/status: Check the status of Washers and Dryers\n\nThank you for using the bot!\nCredit to: @Kaijudo",
+        WELCOME_MESSAGE,
         reply_markup=reply_markup,
     )
 
