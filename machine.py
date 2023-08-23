@@ -1,7 +1,7 @@
 from abc import ABC
 import datetime
 import pytz
-import laundry_firebase
+from laundry_firebase import LaundryFirebase
 import utils
 
 sgt_timezone = pytz.timezone("Asia/Singapore")
@@ -25,7 +25,7 @@ class Machine(ABC):
         return self.time_to_complete
 
     def status(self):
-        curr_user, end_time = laundry_firebase.get_laundry_timer(self.name)
+        curr_user, end_time = LaundryFirebase.get_laundry_timer(self.name)
         if utils.is_available(end_time):
             reply = f"AVAILABLE \U00002705"
             if curr_user:
@@ -47,15 +47,15 @@ class Machine(ABC):
         return f"{self.time_left_mins()}mins"
 
     def start_machine(self, new_user):
-        _, end_time = laundry_firebase.get_laundry_timer(self.name)
+        _, end_time = LaundryFirebase.get_laundry_timer(self.name)
         if not utils.is_available(end_time):
             return False
         else:
             new_end_time = datetime.datetime.now() + datetime.timedelta(
-                seconds=self.timeToComplete
+                seconds=self.time_to_complete
             )
             new_curr_user = new_user
-            laundry_firebase.set_laundry_timer(self.name, new_curr_user, new_end_time)
+            LaundryFirebase.set_laundry_timer(self.name, new_curr_user, new_end_time)
             return True
 
     def alarm(self):
