@@ -229,8 +229,8 @@ def alarm(context: CallbackContext, machine) -> None:
 def set_timer(update, context, machine):
 
     machine_name = machine.get_name()
-    underscore_name = machine_name.lower().replace(" ", "_")
     upper_name = machine_name.upper()
+    underscore_name = machine_name.lower().replace(" ", "_")
 
     """Add a job to the queue."""
     chat_id = update.effective_message.chat_id
