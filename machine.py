@@ -52,7 +52,7 @@ class Machine(ABC):
             return False
         else:
             new_end_time = datetime.datetime.now() + datetime.timedelta(
-                seconds=self.timeToComplete
+                seconds=self.time_to_complete
             )
             new_curr_user = new_user
             LaundryFirebase.set_laundry_timer(self.name, new_curr_user, new_end_time)
