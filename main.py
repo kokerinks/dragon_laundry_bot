@@ -14,8 +14,8 @@ from telegram.ext import (
 )
 from machine import Machine
 from dotenv import load_dotenv
-from utils import is_prod
-from laundry_firebase import LaundryFirebase 
+from utils import is_deployed
+from laundry_firebase import LaundryFirebase
 
 load_dotenv()
 LaundryFirebase.authenticate()
@@ -31,6 +31,7 @@ DRYER_ONE = Machine(DRYER_TIMER, "DRYER ONE")
 DRYER_TWO = Machine(DRYER_TIMER, "DRYER TWO")
 WASHER_ONE = Machine(WASHER_TIMER, "WASHER ONE")
 WASHER_TWO = Machine(WASHER_TIMER, "WASHER TWO")
+
 
 def main():
     updater = Updater(API_KEY)
@@ -86,12 +87,14 @@ def main():
     dispatcher.add_handler(conv_handler)
 
     # Start the Bot
-    if is_prod:
-      updater.start_webhook(listen='0.0.0.0', 
-                            port=os.environ.get('PORT', 8080),
-                            webhook_url='https://dragon-laundry-bot-beta.fly.dev')
+    if is_deployed:
+        updater.start_webhook(
+            listen="0.0.0.0",
+            port=os.environ.get("PORT", 8080),
+            webhook_url="https://dragon-laundry-bot-beta.fly.dev",
+        )
     else:
-      updater.start_polling()
+        updater.start_polling()
 
     # Block until you press Ctrl-C or the process receives SIGINT, SIGTERM or
     # SIGABRT. This should be used most of the time, since start_polling() is
