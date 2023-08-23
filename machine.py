@@ -6,10 +6,7 @@ import utils
 
 sgt_timezone = pytz.timezone("Asia/Singapore")
 
-
 class Machine(ABC):
-    COMPLETION_TEXT = "Fuyohhhhhh!! Your clothes are ready for collection! Please collect them now so that others may use it"
-
     # constant value which stores total time required for start (IN SECONDS)
     name = None
     time_to_complete = None
@@ -59,4 +56,4 @@ class Machine(ABC):
             return True
 
     def alarm(self):
-        return self.COMPLETION_TEXT
+        return "Fuyohhhhhh!! Your clothes are ready for collection! Please collect them now so that others may use it"
