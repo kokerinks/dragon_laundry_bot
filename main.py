@@ -54,17 +54,17 @@ def main():
                 CallbackQueryHandler(cancel, pattern="^exit$"),
                 CallbackQueryHandler(cancel, pattern="^exits$"),
                 CallbackQueryHandler(
-                    double_confirm_dryer_one_callback, pattern="^dryer_one$"
+                    create_double_confirm_callback("dryer_one"), pattern="^dryer_one$"
                 ),
                 CallbackQueryHandler(
-                    double_confirm_dryer_two_callback, pattern="^dryer_two$"
+                    create_double_confirm_callback("dryer_two"), pattern="^dryer_two$"
                 ),
                 CallbackQueryHandler(
-                    double_confirm_washer_one_callback,
+                    create_double_confirm_callback("washer_one"),
                     pattern="^washer_one$",
                 ),
                 CallbackQueryHandler(
-                    double_confirm_washer_two_callback, pattern="^washer_two$"
+                    create_double_confirm_callback("washer_two"), pattern="^washer_two$"
                 ),
                 CallbackQueryHandler(backtomenu, pattern="^no_dryer_one$"),
                 CallbackQueryHandler(backtomenu, pattern="^no_dryer_two$"),
@@ -104,6 +104,10 @@ def main():
 
 WELCOME_MESSAGE = f"Welcome to Dragon Laundry Bot ({os.environ.get('VERSION','dev')})!\n\nUse the following commands to use this bot:\n/select: Select the washer/dryer that you want to use\n/status: Check the status of Washers and Dryers\n\nThank you for using the bot!\nCredit to: @Kaijudo"
 
+START_INLINE_KEYBOARD = InlineKeyboardMarkup(
+    [[InlineKeyboardButton("Exit", callback_data="exit")]]
+)
+
 
 def start(update: Update, context: CallbackContext) -> None:
     # Don't allow users to use /start command in group chats
@@ -117,20 +121,15 @@ def start(update: Update, context: CallbackContext) -> None:
     if len(context.args) > 0:
         return
 
-    keyboard = [[InlineKeyboardButton("Exit", callback_data="exit")]]
-    reply_markup = InlineKeyboardMarkup(keyboard)
     update.message.reply_text(
         WELCOME_MESSAGE,
-        reply_markup=reply_markup,
+        reply_markup=START_INLINE_KEYBOARD,
     )
     return MENU
 
 
-def select(update: Update, context: CallbackContext) -> None:
-    # Don't allow users to use /select command in group chats
-    if update.message.chat.type != "private":
-        return MENU
-    keyboard = [
+SELECT_MACHINE_INLINE_KEYBOARD = InlineKeyboardMarkup(
+    [
         [
             InlineKeyboardButton("Dryer One", callback_data="dryer_one"),
             InlineKeyboardButton("Dryer Two", callback_data="dryer_two"),
@@ -141,12 +140,17 @@ def select(update: Update, context: CallbackContext) -> None:
         ],
         [InlineKeyboardButton("Exit", callback_data="exit")],
     ]
+)
 
-    reply_markup = InlineKeyboardMarkup(keyboard)
+
+def select(update: Update, context: CallbackContext) -> None:
+    # Don't allow users to use /select command in group chats
+    if update.message.chat.type != "private":
+        return MENU
 
     update.message.reply_text(
         "\U0001F606\U0001F923 Please choose a service: \U0001F606\U0001F923",
-        reply_markup=reply_markup,
+        reply_markup=SELECT_MACHINE_INLINE_KEYBOARD,
     )
     return MENU
 
@@ -164,58 +168,41 @@ def cancel(update: Update, context: CallbackContext) -> int:
 
 
 def create_inline_for_callback(machine_name):
-    keyboard = [
+    markup = InlineKeyboardMarkup(
         [
-            InlineKeyboardButton("Yes", callback_data=f"yes_{machine_name}"),
-        ],
-        [InlineKeyboardButton("No", callback_data=f"no_{machine_name}")],
-    ]
-    markup = InlineKeyboardMarkup(keyboard)
-    text = f"Timer for {machine_name.upper()} will begin?"
+            [
+                InlineKeyboardButton("Yes", callback_data=f"yes_{machine_name}"),
+            ],
+            [InlineKeyboardButton("No", callback_data=f"no_{machine_name}")],
+        ]
+    )
+    text = f"Timer for {machine_name.upper().replace('_','')} will begin?"
     return (text, markup)
 
 
-def double_confirm_dryer_one_callback(update: Update, _: CallbackContext) -> int:
-    query = update.callback_query
-    query.answer()
-    text, markup = create_inline_for_callback("dryer_one")
-    query.edit_message_text(text=text, reply_markup=markup)
-    return MENU
+def create_double_confirm_callback(machine_name: str):
+    text, markup = create_inline_for_callback(machine_name)
+
+    def callback(update: Update, _: CallbackContext) -> int:
+        query = update.callback_query
+        query.answer()
+        query.edit_message_text(text=text, reply_markup=markup)
+        return MENU
+
+    return callback
 
 
-def double_confirm_dryer_two_callback(update: Update, _: CallbackContext) -> int:
-    query = update.callback_query
-    query.answer()
-    text, markup = create_inline_for_callback("dryer_two")
-    query.edit_message_text(text=text, reply_markup=markup)
-    return MENU
-
-
-def double_confirm_washer_one_callback(update: Update, _: CallbackContext) -> int:
-    query = update.callback_query
-    query.answer()
-    text, markup = create_inline_for_callback("washer_one")
-    query.edit_message_text(text=text, reply_markup=markup)
-    return MENU
-
-
-def double_confirm_washer_two_callback(update: Update, _: CallbackContext) -> int:
-    query = update.callback_query
-    query.answer()
-    text, markup = create_inline_for_callback("washer_two")
-    query.edit_message_text(text=text, reply_markup=markup)
-    return MENU
+EXIT_INLINE_KEYBOARD = InlineKeyboardMarkup(
+    [[InlineKeyboardButton("Exit", callback_data="exits")]]
+)
 
 
 def backtomenu(update: Update, context: CallbackContext) -> None:
     query = update.callback_query
     query.answer()
-    keyboard = [[InlineKeyboardButton("Exit", callback_data="exits")]]
-
-    reply_markup = InlineKeyboardMarkup(keyboard)
     query.edit_message_text(
         WELCOME_MESSAGE,
-        reply_markup=reply_markup,
+        reply_markup=EXIT_INLINE_KEYBOARD,
     )
 
 
@@ -240,9 +227,10 @@ def alarm(context: CallbackContext, machine) -> None:
 
 
 def set_timer(update, context, machine):
+
     machine_name = machine.get_name()
-    underscore_name = machine_name.lower().replace(" ", "_")
     upper_name = machine_name.upper()
+    underscore_name = machine_name.lower().replace(" ", "_")
 
     """Add a job to the queue."""
     chat_id = update.effective_message.chat_id
@@ -262,10 +250,10 @@ def set_timer(update, context, machine):
             context=chat_id,
             name=underscore_name,
         )
+        text = f"Timer Set for {machine.time_left_mins()}mins for {upper_name}. Please come back again!"
+        query.message.delete()
+        TBOT.send_message(chat_id=chat_id, text=text)
 
-    text = f"Timer Set for {machine.time_left_mins()}mins for {upper_name}. Please come back again!"
-    query.message.delete()
-    TBOT.send_message(chat_id=chat_id, text=text)
     return MENU
 
 
