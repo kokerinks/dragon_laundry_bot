@@ -6,6 +6,7 @@ import utils
 
 sgt_timezone = pytz.timezone("Asia/Singapore")
 
+
 class Machine(ABC):
     # constant value which stores total time required for start (IN SECONDS)
     name = None

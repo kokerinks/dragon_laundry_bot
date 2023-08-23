@@ -43,14 +43,8 @@ def main():
     # ^ means "start of line/string"
     # $ means "end of line/string"
     # So ^ABC$ will only allow 'ABC'
-    
-    ENTRY_POINTS_DICT = {
-        "start": start,
-        "select": select,
-        "status": status,
-    }
-    
-    MENU_DICT={
+
+    MENU_DICT = {
         "exit": cancel,
         "exits": cancel,
         "dryer_one": create_double_confirm_callback("dryer_one"),
@@ -66,23 +60,21 @@ def main():
         "yes_washer_one": set_timer_machine(WASHER_ONE),
         "yes_washer_two": set_timer_machine(WASHER_TWO),
     }
-    
+
     FALLBACK_DICT = {
         "start": start,
         "select": select,
         "status": status,
     }
-    
+
     conv_handler = ConversationHandler(
-        entry_points=[ CommandHandler(cmd, fn) for cmd, fn in ENTRY_POINTS_DICT],
+        entry_points=[CommandHandler(cmd, fn) for cmd, fn in ENTRY_POINTS_DICT],
         states={
             MENU: [
                 CallbackQueryHandler(fn, pattern=f"^{cmd}$") for cmd, fn in MENU_DICT
             ]
         },
-        fallbacks=[
-            CommandHandler(cmd, fn) for cmd, fn in FALLBACK_DICT
-        ],
+        fallbacks=[CommandHandler(cmd, fn) for cmd, fn in FALLBACK_DICT],
     )
 
     # Add ConversationHandler to dispatcher that will be used for handling updates
@@ -225,7 +217,6 @@ def alarm(context: CallbackContext, machine) -> None:
         job.context,
         text="Fuyohhhhhh!! Your clothes are ready for collection! Please collect them now so that others may use it",
     )
-    machine.alarm()
 
 
 def set_timer_machine(machine):
@@ -257,6 +248,7 @@ def set_timer_machine(machine):
             TBOT.send_message(chat_id=chat_id, text=text)
 
         return MENU
+
     return set_timer
 
 
