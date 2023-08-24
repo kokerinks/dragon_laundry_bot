@@ -43,44 +43,38 @@ def main():
     # ^ means "start of line/string"
     # $ means "end of line/string"
     # So ^ABC$ will only allow 'ABC'
+
+    MENU_DICT = {
+        "exit": cancel,
+        "exits": cancel,
+        "dryer_one": create_double_confirm_callback("dryer_one"),
+        "dryer_two": create_double_confirm_callback("dryer_two"),
+        "washer_one": create_double_confirm_callback("washer_one"),
+        "washer_two": create_double_confirm_callback("washer_two"),
+        "no_dryer_one": backtomenu,
+        "no_dryer_two": backtomenu,
+        "no_washer_one": backtomenu,
+        "no_washer_two": backtomenu,
+        "yes_dryer_one": set_timer_machine(DRYER_ONE),
+        "yes_dryer_two": set_timer_machine(DRYER_TWO),
+        "yes_washer_one": set_timer_machine(WASHER_ONE),
+        "yes_washer_two": set_timer_machine(WASHER_TWO),
+    }
+
+    FALLBACK_DICT = {
+        "start": start,
+        "select": select,
+        "status": status,
+    }
+
     conv_handler = ConversationHandler(
-        entry_points=[
-            CommandHandler("start", start),
-            CommandHandler("select", select),
-            CommandHandler("status", status),
-        ],
+        entry_points=[CommandHandler(cmd, fn) for cmd, fn in ENTRY_POINTS_DICT],
         states={
             MENU: [
-                CallbackQueryHandler(cancel, pattern="^exit$"),
-                CallbackQueryHandler(cancel, pattern="^exits$"),
-                CallbackQueryHandler(
-                    create_double_confirm_callback("dryer_one"), pattern="^dryer_one$"
-                ),
-                CallbackQueryHandler(
-                    create_double_confirm_callback("dryer_two"), pattern="^dryer_two$"
-                ),
-                CallbackQueryHandler(
-                    create_double_confirm_callback("washer_one"),
-                    pattern="^washer_one$",
-                ),
-                CallbackQueryHandler(
-                    create_double_confirm_callback("washer_two"), pattern="^washer_two$"
-                ),
-                CallbackQueryHandler(backtomenu, pattern="^no_dryer_one$"),
-                CallbackQueryHandler(backtomenu, pattern="^no_dryer_two$"),
-                CallbackQueryHandler(backtomenu, pattern="^no_washer_one$"),
-                CallbackQueryHandler(backtomenu, pattern="^no_washer_two$"),
-                CallbackQueryHandler(set_timer_dryer_one, pattern="^yes_dryer_one$"),
-                CallbackQueryHandler(set_timer_dryer_two, pattern="^yes_dryer_two$"),
-                CallbackQueryHandler(set_timer_washer_one, pattern="^yes_washer_one$"),
-                CallbackQueryHandler(set_timer_washer_two, pattern="^yes_washer_two$"),
+                CallbackQueryHandler(fn, pattern=f"^{cmd}$") for cmd, fn in MENU_DICT
             ]
         },
-        fallbacks=[
-            CommandHandler("start", start),
-            CommandHandler("select", select),
-            CommandHandler("status", status),
-        ],
+        fallbacks=[CommandHandler(cmd, fn) for cmd, fn in FALLBACK_DICT],
     )
 
     # Add ConversationHandler to dispatcher that will be used for handling updates
@@ -176,7 +170,7 @@ def create_inline_for_callback(machine_name):
             [InlineKeyboardButton("No", callback_data=f"no_{machine_name}")],
         ]
     )
-    text = f"Timer for {machine_name.upper().replace('_','')} will begin?"
+    text = f"Timer for {machine_name.upper().replace('_',' ')} will begin?"
     return (text, markup)
 
 
@@ -223,54 +217,39 @@ def alarm(context: CallbackContext, machine) -> None:
         job.context,
         text="Fuyohhhhhh!! Your clothes are ready for collection! Please collect them now so that others may use it",
     )
-    machine.alarm()
 
 
-def set_timer(update, context, machine):
+def set_timer_machine(machine):
+    def set_timer(update, context):
+        machine_name = machine.get_name()
+        upper_name = machine_name.upper()
+        underscore_name = machine_name.lower().replace(" ", "_")
 
-    machine_name = machine.get_name()
-    upper_name = machine_name.upper()
-    underscore_name = machine_name.lower().replace(" ", "_")
+        """Add a job to the queue."""
+        chat_id = update.effective_message.chat_id
+        query = update.callback_query
+        query.answer()
 
-    """Add a job to the queue."""
-    chat_id = update.effective_message.chat_id
-    query = update.callback_query
-    query.answer()
+        job_removed = remove_job_if_exists(str(chat_id), context)
 
-    job_removed = remove_job_if_exists(str(chat_id), context)
+        if not (machine.start_machine(update.effective_message.chat.username)):
+            text = f"{upper_name} is currently in use. Please come back again later!"
+            query.message.delete()
+            TBOT.send_message(chat_id=chat_id, text=text)
+        else:
+            context.job_queue.run_once(
+                lambda context: alarm(context, machine),
+                machine.get_time_to_complete(),
+                context=chat_id,
+                name=underscore_name,
+            )
+            text = f"Timer Set for {machine.time_left_mins()}mins for {upper_name}. Please come back again!"
+            query.message.delete()
+            TBOT.send_message(chat_id=chat_id, text=text)
 
-    if not (machine.start_machine(update.effective_message.chat.username)):
-        text = f"{upper_name} is currently in use. Please come back again later!"
-        query.message.delete()
-        TBOT.send_message(chat_id=chat_id, text=text)
-    else:
-        context.job_queue.run_once(
-            lambda context: alarm(context, machine),
-            machine.get_time_to_complete(),
-            context=chat_id,
-            name=underscore_name,
-        )
-        text = f"Timer Set for {machine.time_left_mins()}mins for {upper_name}. Please come back again!"
-        query.message.delete()
-        TBOT.send_message(chat_id=chat_id, text=text)
+        return MENU
 
-    return MENU
-
-
-def set_timer_dryer_one(update: Update, context: CallbackContext) -> None:
-    set_timer(update, context, DRYER_ONE)
-
-
-def set_timer_dryer_two(update: Update, context: CallbackContext) -> None:
-    set_timer(update, context, DRYER_TWO)
-
-
-def set_timer_washer_one(update: Update, context: CallbackContext) -> None:
-    set_timer(update, context, WASHER_ONE)
-
-
-def set_timer_washer_two(update: Update, context: CallbackContext) -> None:
-    set_timer(update, context, WASHER_TWO)
+    return set_timer
 
 
 def status(update: Update, context: CallbackContext) -> None:
