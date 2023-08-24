@@ -170,7 +170,7 @@ def create_inline_for_callback(machine_name):
             [InlineKeyboardButton("No", callback_data=f"no_{machine_name}")],
         ]
     )
-    text = f"Timer for {machine_name.upper().replace('_','')} will begin?"
+    text = f"Timer for {machine_name.upper().replace('_',' ')} will begin?"
     return (text, markup)
 
 
