@@ -14,7 +14,7 @@ from telegram.ext import (
 )
 from machine import Machine
 from dotenv import load_dotenv
-from utils import is_deployed
+from utils import is_deployed, is_prod
 from laundry_firebase import LaundryFirebase
 
 load_dotenv()
@@ -87,7 +87,9 @@ def main():
         updater.start_webhook(
             listen="0.0.0.0",
             port=os.environ.get("PORT", 8080),
-            webhook_url="https://dragon-laundry-bot-beta.fly.dev",
+            webhook_url="https://dragon-laundry-bot.fly.dev"
+            if is_prod
+            else "https://dragon-laundry-bot-beta.fly.dev",
         )
     else:
         updater.start_polling()
