@@ -4,6 +4,7 @@ on:
   pull_request:
     branches:
       - main
+      - feat/cicd-pr-run
 
 jobs:
   build:
@@ -13,3 +14,21 @@ jobs:
       - uses: actions/checkout@v2
       - name: Build Docker image
         run: docker build  .
+  run:
+    name: Python Run
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+      - name: Run Telegram Bot
+        timeout-minutes: 3
+        run: python main.py
+        env:
+          TELEGRAM_BOT_API_KEY: ${{ secrets.DEV_TELEGRAM_BOT_API_KEY }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}

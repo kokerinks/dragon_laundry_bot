@@ -44,6 +44,13 @@ def main():
     # $ means "end of line/string"
     # So ^ABC$ will only allow 'ABC'
 
+    ENTRY_POINT_DICT = {
+        "start": start,
+        "select": select,
+        "status": status,
+    }
+    FALLBACK_DICT = ENTRY_POINT_DICT
+
     MENU_DICT = {
         "exit": cancel,
         "exits": cancel,
@@ -61,20 +68,15 @@ def main():
         "yes_washer_two": set_timer_machine(WASHER_TWO),
     }
 
-    FALLBACK_DICT = {
-        "start": start,
-        "select": select,
-        "status": status,
-    }
-
     conv_handler = ConversationHandler(
-        entry_points=[CommandHandler(cmd, fn) for cmd, fn in ENTRY_POINTS_DICT],
+        entry_points=[CommandHandler(cmd, fn) for cmd, fn in ENTRY_POINT_DICT.items()],
         states={
             MENU: [
-                CallbackQueryHandler(fn, pattern=f"^{cmd}$") for cmd, fn in MENU_DICT
+                CallbackQueryHandler(fn, pattern=f"^{cmd}$")
+                for cmd, fn in MENU_DICT.items()
             ]
         },
-        fallbacks=[CommandHandler(cmd, fn) for cmd, fn in FALLBACK_DICT],
+        fallbacks=[CommandHandler(cmd, fn) for cmd, fn in FALLBACK_DICT.items()],
     )
 
     # Add ConversationHandler to dispatcher that will be used for handling updates
