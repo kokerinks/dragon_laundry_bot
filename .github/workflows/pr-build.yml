@@ -29,3 +29,6 @@ jobs:
       - name: Run Telegram Bot
         timeout-minutes: 3
         run: python main.py
+        env:
+          TELEGRAM_BOT_API_KEY: ${{ secrets.DEV_TELEGRAM_BOT_API_KEY }}
+          FIREBASE_CREDENTIALS: ${{ secrets.FIREBASE_CREDENTIALS }}
