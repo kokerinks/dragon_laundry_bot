@@ -32,6 +32,9 @@ DRYER_TWO = Machine(DRYER_TIMER, "DRYER TWO")
 WASHER_ONE = Machine(WASHER_TIMER, "WASHER ONE")
 WASHER_TWO = Machine(WASHER_TIMER, "WASHER TWO")
 
+SELECT_COMMAND_DESCRIPTION = "Select the washer/dryer that you want to use"
+STATUS_COMMAND_DESCRIPTION = "Check the status of Washers and Dryers"
+
 
 def main():
     updater = Updater(API_KEY)
@@ -68,6 +71,14 @@ def main():
         "yes_washer_two": set_timer_machine(WASHER_TWO),
     }
 
+    COMMANDS_DICT = {
+        "start": "Display help page and version",
+        "select": SELECT_COMMAND_DESCRIPTION,
+        "status": STATUS_COMMAND_DESCRIPTION,
+    }
+
+    TBOT.set_my_commands(COMMANDS_DICT.items())
+
     conv_handler = ConversationHandler(
         entry_points=[CommandHandler(cmd, fn) for cmd, fn in ENTRY_POINT_DICT.items()],
         states={
@@ -100,7 +111,7 @@ def main():
     updater.idle()
 
 
-WELCOME_MESSAGE = f"Welcome to Dragon Laundry Bot ({os.environ.get('VERSION','dev')})!\n\nUse the following commands to use this bot:\n/select: Select the washer/dryer that you want to use\n/status: Check the status of Washers and Dryers\n\nThank you for using the bot!\nCredit to: @Kaijudo"
+WELCOME_MESSAGE = f"Welcome to Dragon Laundry Bot ({os.environ.get('VERSION','dev')})!\n\nUse the following commands to use this bot:\n/select: {SELECT_COMMAND_DESCRIPTION}\n/status: {STATUS_COMMAND_DESCRIPTION}\n\nThank you for using the bot!\nCredit to: @Kaijudo"
 
 START_INLINE_KEYBOARD = InlineKeyboardMarkup(
     [[InlineKeyboardButton("Exit", callback_data="exit")]]
